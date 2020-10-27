@@ -9,6 +9,7 @@ document: [低レイヤを知りたい人のためのCコンパイラ作成入�
 レポジトリ名通り、Rui Ueyama([rui314](https://github.com/rui314))さんによるコード量が少ないCコンパイラの実装。
 
 # Reference
-- [r9cc](https://github.com/utam0k/r9cc)
-- [nine-cc](https://github.com/itome/nine-cc)
-- [rust_chibicc](https://github.com/AK-10/rust_chibicc)
+- [ymgyt/r9cc](https://github.com/ymgyt/r9cc)
+- [utam0k/r9cc](https://github.com/utam0k/r9cc)
+- [itome/nine-cc](https://github.com/itome/nine-cc)
+- [AK-10/rust_chibicc](https://github.com/AK-10/rust_chibicc)
