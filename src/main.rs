@@ -1,3 +1,5 @@
+use lib::*
+
 fn main() {
     let arg = std::env::args().nth(1).unwrap();
     
@@ -11,6 +13,14 @@ fn main() {
     // ... followed by either `+ <number>` or `- <number>`.
     println!("main:");
     println!("   mov rax, {}", p);
-    while (p)
+    while (p){
+        if (p == "+"){
+            println!("  add rax, {}", p)
+        } else if(p == "-") {
+            println!("  sub rax, {}", p)
+        }else{
+            println!("  add rax, {}", p)
+        }
+    }
     println!("   ret");
 }
