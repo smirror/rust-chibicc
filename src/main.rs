@@ -1,25 +1,38 @@
-use lib::*
+use std::env;
+
 
 fn main() {
-    let arg = std::env::args().nth(1).unwrap();
-    
-    let p = {
-        usize::from_str_radix(arg.as_str(), 10).unwrap()
-    };
+    let args: Vec<String> = env::args().collect();
+    let arg = args[1].to_string() + " ";
     // The first token must be a number
     println!(".intel_syntax noprefix");
     println!(".global main");
 
     // ... followed by either `+ <number>` or `- <number>`.
     println!("main:");
-    println!("   mov rax, {}", p);
-    while (p){
-        if (p == "+"){
-            println!("  add rax, {}", p)
-        } else if(p == "-") {
-            println!("  sub rax, {}", p)
-        }else{
-            println!("  add rax, {}", p)
+    let mut n: String = "".to_string();
+    let mut operator = '\0';
+    for p in arg.as_str().chars() {
+        if !p.is_ascii_digit(){
+            match operator {
+                '\0'  => {
+                    println!("   mov rax, {}", n);
+                    n = "".to_string();
+                }
+                '+' => {
+                    println!("   add rax, {}", n);
+                    n = "".to_string();
+                }
+                '-' => {
+                    println!("   sub rax, {}", n);
+                    n = "".to_string();
+                }
+                _ => {}
+            }
+            operator = p;
+        } else {
+            n.push(p);
+            continue;
         }
     }
     println!("   ret");
