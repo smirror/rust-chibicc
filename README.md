@@ -13,7 +13,7 @@ document: [低レイヤを知りたい人のためのCコンパイラ作成入�
    ```
 2.  - 今、実行可能なテストを全て行う場合
         ```bash
-        git clone https://github.com/smirror/rust-chibicc.git
+        bash test.sh
         ```
 
     - 個別にテストを行う場合
