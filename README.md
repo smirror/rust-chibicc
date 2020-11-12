@@ -21,6 +21,13 @@ document: [低レイヤを知りたい人のためのCコンパイラ作成入�
         cd rust-chibicc
         cargo run -- "(test cases)"
         ```
+# 実装した機能
+- [x]  Step 1: Print one number
+- [x]  Step 2: Operetor '+' & '-'
+- [x]  Step 3: replace space' ' (but not completely)
+- [ ]  Step 4: Error messages
+
+
 
 # Reference
 - [ymgyt/r9cc](https://github.com/ymgyt/r9cc)
