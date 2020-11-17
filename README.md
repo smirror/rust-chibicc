@@ -30,7 +30,6 @@ document: [低レイヤを知りたい人のためのCコンパイラ作成入�
 
 
 # Reference
-- [ymgyt/r9cc](https://github.com/ymgyt/r9cc)
 - [utam0k/r9cc](https://github.com/utam0k/r9cc)
 - [itome/nine-cc](https://github.com/itome/nine-cc)
 - [AK-10/rust_chibicc](https://github.com/AK-10/rust_chibicc)

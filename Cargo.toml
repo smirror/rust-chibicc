@@ -7,6 +7,9 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-nom = "^6.0.0"
+combine = "^4.3.2"
+combine-language  = "3.0.2"
+nom = "6"
 
 [build-dependencies]
+
