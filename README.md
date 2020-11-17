@@ -24,8 +24,32 @@ document: [低レイヤを知りたい人のためのCコンパイラ作成入�
 # 実装した機能
 - [x]  Step 1: Print one number
 - [x]  Step 2: Operetor '+' & '-'
-- [x]  Step 3: replace space' ' (but not completely)
+- [x]  Step 3: replace space' '
 - [ ]  Step 4: Error messages
+- [ ]  Step 5: Add '*', ',', '/' and '()'
+- [ ]  Step 6: Add unary plus and minus
+- [ ]  Step 7: Add "==", "!=", "<=" and ">=" operators
+- [ ]  Step 8: ファイル分割とMakefileの変更
+- [ ]  Step 9: 1文字のローカル変数
+- [ ]  Step 10: 複数文字のローカル変数
+- [ ]  Step 11: return文
+- [ ]  Step 12: 制御構文を足す
+- [ ]  Step 13: ブロック
+- [ ]  Step 14: 関数の呼び出しに対応する
+- [ ]  Step 15: 関数の定義に対応する
+- [ ]  Step 16: 単項&と単項*
+- [ ]  Step 17: 暗黙の変数定義を廃止して、intというキーワードを導入する
+- [ ]  Step 18: ポインタ型を導入する
+- [ ]  Step 19: ポインタの加算と減算を実装する
+- [ ]  Step 20: sizeof演算子
+- [ ]  Step 21: 配列を実装する
+- [ ]  Step 22: 配列の添字を実装する
+- [ ]  Step 23: ステップ23: グローバル変数を実装する
+- [ ]  Step 24: 文字型を実装する
+- [ ]  Step 25:  文字列リテラルを実装する
+- [ ]  Step 26: 入力をファイルから読む
+- [ ]  Step 27:  行コメントとブロックコメント
+- [ ]  Step 28: テストをCで書き直す
 
 
 
