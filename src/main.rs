@@ -1,5 +1,8 @@
+extern crate rust_chibicc;
+use rust_chibicc::strtol;
+use std::{env, process::exit};
 #[derive(Debug)]
-pub enum Token {
+pub enum TokenType {
     Number(u64), // [0-9][0-9]*
     Plus,        // '+'
     Minus,       // '-'
@@ -8,86 +11,108 @@ pub enum Token {
     LParen,      // '('
     RParen,      // ')'
 }
+#[derive(Default, Debug)]
+struct Token {
+    ty: u64,       // Token type
+    val: u64,      // Number literal
+    input: String, // Token string (for error reporting)
+}
 
-impl Token {
-    /// あとで使う便利関数。
-    pub fn expect_num(&self) -> u64 {
-        match self {
-            Token::Number(n) => *n,
-            t => panic!("Expect number but found {:?}", t),
+fn tokenize(mut p: String) -> Vec<Token> {
+    // Tokenized input is stored to this vec.
+    let mut tokens: Vec<Token> = vec![];
+
+    let org = p.clone();
+    while let Some(c) = p.chars().nth(0) {
+        // Skip whitespce
+        if c.is_whitespace() {
+            p = p.split_off(1); // p++
+            continue;
         }
+
+        // + or -
+        if c == '+' || c == '-' {
+            let token = Token {
+                ty: c as u64,
+                input: org.clone(),
+                ..Default::default()
+            };
+            p = p.split_off(1); // p++
+            tokens.push(token);
+            continue;
+        }
+
+        // Number
+        if c.is_ascii_digit() {
+            let (n, remaining) = strtol(&p);
+            p = remaining;
+            let token = Token {
+                ty: TokenType::Number as u64,
+                input: org.clone(),
+                val: n.unwrap() as u64,
+            };
+            tokens.push(token);
+            continue;
+        }
+
+        eprintln!("cannot tokenize: {}", p);
+        exit(1);
     }
+    return tokens;
 }
 
-/// トークンのイテレータを表す構造体
-pub struct TokenIter<'a> {
-    s: &'a str,
-}
-
-/// 文字列を受け取って、トークンのイテレータを返す関数。つまりトークナイザー。
-/// Rustのイテレータは遅延評価なのでここでは何もしていない。
-pub fn tokenize<'a>(s: &'a str) -> TokenIter<'a> {
-    TokenIter { s }
-}
-
-/// トークナイザーの中身。
-/// やっていることは、次のトークンの判定を行い、内部の文字列を更新するだけ。
-impl<'a> Iterator for TokenIter<'a> {
-    type Item = Token;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.s = self.s.trim_start();
-        if self.s.is_empty() {
-            return None;
-        }
-        match self.s.as_bytes()[0] {
-            b'+' => {
-                self.s = self.s.split_at(1).1;
-                return Some(Token::Plus);
-            }
-            b'-' => {
-                self.s = self.s.split_at(1).1;
-                return Some(Token::Minus);
-            }
-            _ => {}
-        }
-
-        let (digit_s, remain_s) = split_digit(self.s);
-        if !digit_s.is_empty() {
-            self.s = remain_s;
-            return Some(Token::Number(u64::from_str_radix(digit_s, 10).unwrap()));
-        }
-
-        panic!("Invalid token stream")
-    }
-}
-
-/// Rustにstrtol関数がないので同じような挙動をする関数を定義する。
-fn split_digit(s: &str) -> (&str, &str) {
-    let first_non_num_idx = s.find(|c| !char::is_numeric(c)).unwrap_or(s.len());
-    s.split_at(first_non_num_idx)
+fn fail(tokens: &Vec<Token>, i: usize) {
+    eprintln!("unexpected character: {:?}", tokens[i]);
+    exit(1);
 }
 
 fn main() {
-    let arg = std::env::args().nth(1).unwrap();
-    let mut tokens = tokenize(arg.as_str());
+    let mut args = env::args();
+    if args.len() != 2 {
+        eprintln!("Usage: rust-chibicc <code>");
+        return;
+    }
+
+    let tokens = tokenize(args.nth(1).unwrap());
+
     // The first token must be a number
     println!(".intel_syntax noprefix");
     println!(".global main");
-
-    // ... followed by either `+ <number>` or `- <number>`.
     println!("main:");
 
-    println!("   mov rax, {}", tokens.next().unwrap().expect_num());
+    // Verify that the given expression starts with a number,
+    // and then emit the first `mov` instruction.
+    if tokens[0].ty != TokenType::Number as u64 {
+        fail(&tokens, 0);
+    }
+    print!("  mov rax, {}\n", tokens[0].val);
 
-    while let Some(token) = tokens.next() {
-        let n = tokens.next().unwrap().expect_num();
-        match token {
-            Token::Plus => println!("   add rax, {}", n),
-            Token::Minus => println!("   sub rax, {}", n),
-            _ => panic!("Unexpected Operator"),
+    // Emit assembly as we consume the sequence of `+ <number>`
+    // or `- <number>`.
+    let mut i = 1;
+    while i != tokens.len() {
+        if tokens[i].ty == '+' as u64 {
+            i += 1;
+            if tokens[i].ty != TokenType::Number as u64 {
+                fail(&tokens, i);
+            }
+            print!("  add rax, {}\n", tokens[i].val);
+            i += 1;
+            continue;
         }
+
+        if tokens[i].ty == '-' as u64 {
+            i += 1;
+            if tokens[i].ty != TokenType::Number as u64 {
+                fail(&tokens, i);
+            }
+            print!("  sub rax, {}\n", tokens[i].val);
+            i += 1;
+            continue;
+        }
+
+        fail(&tokens, i);
     }
 
-    println!("   ret");
+    print!("  ret\n");
 }
