@@ -8,7 +8,7 @@ document: [低レイヤを知りたい人のためのCコンパイラ作成入�
 subdocuments(という名の面白かったサイト):
 
 - [create-your-own-programming-language](https://mukulrathi.co.uk/create-your-own-programming-language/llvm-ir-cpp-api-tutorial/)
- from Hacker News
+ from [Mukul Rathi](https://twitter.com/mukulrathi_)
 
 ## chibicc: A Small C Compiler
 レポジトリ名通り、Rui Ueyama([rui314](https://github.com/rui314))さんによるコード量が少ないCコンパイラの実装。
