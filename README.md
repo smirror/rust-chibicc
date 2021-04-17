@@ -12,21 +12,27 @@ subdocuments(という名の面白かったサイト):
 
 ## chibicc: A Small C Compiler
 レポジトリ名通り、Rui Ueyama([rui314](https://github.com/rui314))さんによるコード量が少ないCコンパイラの実装。
-## 実行
-1. ```bash
+
+## Requires and Do
+1. Make sure you have installed the dependencies:
+   - Cargo 1.49.0 or later
+
+2. Clone the source with git:
+     ```bash
    git clone https://github.com/smirror/rust-chibicc.git
-   ```
-2.  - 今、実行可能なテストを全て行う場合
+    ```
+3. - Test for all cases passed now:
         ```bash
+        cd rust-chibicc
         bash test.sh
         ```
 
-    - 個別にテストを行う場合
+   - Check it given a test case:
         ```bash
         cd rust-chibicc
         cargo run -- "(test cases)"
         ```
-## 実装した機能
+## Implementation
 ### 電卓レベルの言語の作成
 - [x]  Step 1: Print one number
 - [x]  Step 2: Operetor '+' & '-'
