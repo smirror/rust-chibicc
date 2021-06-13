@@ -1,96 +1,78 @@
-extern crate combine;
-extern crate combine_language;
+pub mod tokenizer;
 
-use combine::char::{alpha_num, letter, string};
-use combine::{chainl1, parser, satisfy, ParseResult, Parser, Stream};
-use combine_language::{Identifier, LanguageDef, LanguageEnv};
+use std::{env, process::exit};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-enum Expr {
-    Number(i64),
-    Plus(Box<Expr>, Box<Expr>),
-    Minus(Box<Expr>, Box<Expr>),
-    Times(Box<Expr>, Box<Expr>),
-    Divides(Box<Expr>, Box<Expr>),
+
+// Tokenizer
+#[derive(Debug, PartialEq, Clone)]
+pub enum TokenType {
+    Number(u64), // [0-9][0-9]*
+    Plus,        // '+'
+    Minus,       // '-'
+    Times,       // '*'
+    Divides,     // '/'
+    LParen,      // '('
+    RParen,      // ')'
 }
 
-fn calc_env<'a, I>() -> LanguageEnv<'a, I>
-where
-    I: Stream<Item = char>,
-    I: 'a,
-{
-    LanguageEnv::new(LanguageDef {
-        ident: Identifier {
-            start: letter(),
-            rest: alpha_num(),
-            reserved: ["if", "then", "else", "let", "in", "type"]
-                .iter()
-                .map(|x| (*x).into())
-                .collect(),
-        },
-        op: Identifier {
-            start: satisfy(|c| "+-*/".chars().any(|x| x == c)),
-            rest: satisfy(|c| "+-*/".chars().any(|x| x == c)),
-            reserved: ["+", "-", "*", "/"].iter().map(|x| (*x).into()).collect(),
-        },
-        comment_start: string("/*").map(|_| ()),
-        comment_end: string("*/").map(|_| ()),
-        comment_line: string("//").map(|_| ()),
-    })
+#[derive(Default, Debug)]
+struct Token {
+    ty: u64,       // Token type
+    val: u64,      // Number literal
+    input: String, // Token string (for error reporting)
 }
 
-// 整数または括弧で括られた式
-fn factor<I>(input: I) -> ParseResult<Box<Expr>, I>
-where
-    I: Stream<Item = char>,
-{
-    let env = calc_env();
-    let number = env.integer().map(|x| Box::new(Expr::Number(x)));
-    let parenthesized = env.parens(parser(expr));
-    number.or(parenthesized).parse_stream(input)
-}
+fn tokenize(mut p: String) -> Vec<Token> {
+    // Tokenized input is stored to this vec.
+    let mut tokens: Vec<Token> = vec![];
 
-// 掛け算・割り算またはfactor
-fn term<I>(input: I) -> ParseResult<Box<Expr>, I>
-where
-    I: Stream<Item = char>,
-{
-    let env = calc_env();
-    let op = env.reserved_op("*").or(env.reserved_op("/")).map(|op| {
-        move |lhs, rhs| {
-            if op == "*" {
-                Box::new(Expr::Times(lhs, rhs))
-            } else if op == "/" {
-                Box::new(Expr::Divides(lhs, rhs))
-            } else {
-                unreachable!()
-            }
+    let org = p.clone();
+    while let Some(c) = p.chars().nth(0) {
+        // Skip whitespce
+        if c.is_whitespace() {
+            p = p.split_off(1); // p++
+            continue;
         }
-    });
-    chainl1(parser(factor), op).parse_stream(input)
-}
 
-// 全ての式
-fn expr<I>(input: I) -> ParseResult<Box<Expr>, I>
-where
-    I: Stream<Item = char>,
-{
-    let env = calc_env();
-    let op = env.reserved_op("+").or(env.reserved_op("-")).map(|op| {
-        move |lhs, rhs| {
-            if op == "+" {
-                Box::new(Expr::Plus(lhs, rhs))
-            } else if op == "-" {
-                Box::new(Expr::Minus(lhs, rhs))
-            } else {
-                unreachable!()
-            }
+        // + or -
+        if c == '+' || c == '-' {
+            let token = Token {
+                ty: c as u64,
+                input: org.clone(),
+                ..Default::default()
+            };
+            p = p.split_off(1); // p++
+            tokens.push(token);
+            continue;
         }
-    });
-    chainl1(parser(term), op).parse_stream(input)
+
+        // Number
+        if c.is_ascii_digit() {
+            let (n, remaining) = strtol(&p);
+            p = remaining;
+            let token = Token {
+                ty: TokenType::Number as u64,
+                input: org.clone(),
+                val: n.unwrap() as u64,
+            };
+            tokens.push(token);
+            continue;
+        }
+
+        eprintln!("cannot tokenize: {}", p);
+        exit(1);
+    }
+    return tokens;
 }
 
-fn main() {
-    let mut parser = parser(expr);
-    println!("{:?}", parser.parse("1 + 2 * 3"));
+
+fn error_at(error_message : &str,  tokens: &Vec<Token>, i: usize) {
+    eprintln!("{}", &error_message);
+    eprintln!("{}", &tokens[0].input);
+    for _ in 0..i {
+        eprint!("{}", " ");
+    }
+    let err_ch = &tokens[0].input[i..i+1];
+    eprintln!("{} unexpected character: {}", "^", err_ch);
+    exit(1);
 }

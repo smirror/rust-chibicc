@@ -1,4 +1,5 @@
 extern crate rust_chibicc;
+
 use rust_chibicc::strtol;
 use std::{env, process::exit};
 
@@ -66,20 +67,18 @@ fn tokenize(mut p: String) -> Vec<Token> {
 
 
 fn error_at(error_message : &str,  tokens: &Vec<Token>, i: usize) {
-    eprintln!("{}", &error_message);
-    eprintln!("{}", &tokens[0].input);
-    for _ in 0..i {
-        eprint!("{}", " ");
-    }
     let err_ch = &tokens[0].input[i..i+1];
-    eprintln!("{} unexpected character: {}", "^", err_ch);
+
+    eprintln!("EROOR: {}", &error_message);
+    eprintln!("{}", &tokens[0].input);
+    eprint!("{}^ unexpected character: {}", " ".repeat(i), err_ch);
     exit(1);
 }
 
 fn main() {
     let mut args = env::args();
     if args.len() != 2 {
-        eprintln!("Usage: rust-chibicc <code>");
+        eprintln!("<code>: invalid number of arguments");
         return;
     }
 
@@ -95,7 +94,7 @@ fn main() {
     if tokens[0].ty != TokenType::Number as u64 {
         error_at("expected a number", &tokens, 0);
     }
-    print!("  mov rax, {}\n", tokens[0].val);
+    println!("  mov rax, {}", tokens[0].val);
 
     // Emit assembly as we consume the sequence of `+ <number>`
     // or `- <number>`.
@@ -103,20 +102,24 @@ fn main() {
     while i != tokens.len() {
         if tokens[i].ty == '+' as u64 {
             i += 1;
-            if tokens[i].ty != TokenType::Number as u64 {
+            if tokens.len() <= i{
+                error_at("Extra operators", &tokens, i-1);
+            }else if tokens[i].ty != TokenType::Number as u64 {
                 error_at("expected a number", &tokens, i);
             }
-            print!("  add rax, {}\n", tokens[i].val);
+            println!("  add rax, {}", tokens[i].val);
             i += 1;
             continue;
         }
 
         if tokens[i].ty == '-' as u64 {
             i += 1;
-            if tokens[i].ty != TokenType::Number as u64 {
+            if tokens.len() <= i{
+                error_at("Extra operators", &tokens, i-1);
+            }else if tokens[i].ty != TokenType::Number as u64 {
                 error_at("expected a number", &tokens, i);
             }
-            print!("  sub rax, {}\n", tokens[i].val);
+            println!("  sub rax, {}", tokens[i].val);
             i += 1;
             continue;
         }
