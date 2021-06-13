@@ -1,7 +1,9 @@
 extern crate rust_chibicc;
 use rust_chibicc::strtol;
 use std::{env, process::exit};
-#[derive(Debug)]
+
+// Tokenizer
+#[derive(Debug, PartialEq, Clone)]
 pub enum TokenType {
     Number(u64), // [0-9][0-9]*
     Plus,        // '+'
@@ -11,6 +13,7 @@ pub enum TokenType {
     LParen,      // '('
     RParen,      // ')'
 }
+
 #[derive(Default, Debug)]
 struct Token {
     ty: u64,       // Token type
@@ -61,8 +64,15 @@ fn tokenize(mut p: String) -> Vec<Token> {
     return tokens;
 }
 
-fn fail(tokens: &Vec<Token>, i: usize) {
-    eprintln!("unexpected character: {:?}", tokens[i]);
+
+fn error_at(error_message : &str,  tokens: &Vec<Token>, i: usize) {
+    eprintln!("{}", &error_message);
+    eprintln!("{}", &tokens[0].input);
+    for _ in 0..i {
+        eprint!("{}", " ");
+    }
+    let err_ch = &tokens[0].input[i..i+1];
+    eprintln!("{} unexpected character: {}", "^", err_ch);
     exit(1);
 }
 
@@ -83,7 +93,7 @@ fn main() {
     // Verify that the given expression starts with a number,
     // and then emit the first `mov` instruction.
     if tokens[0].ty != TokenType::Number as u64 {
-        fail(&tokens, 0);
+        error_at("expected a number", &tokens, 0);
     }
     print!("  mov rax, {}\n", tokens[0].val);
 
@@ -94,7 +104,7 @@ fn main() {
         if tokens[i].ty == '+' as u64 {
             i += 1;
             if tokens[i].ty != TokenType::Number as u64 {
-                fail(&tokens, i);
+                error_at("expected a number", &tokens, i);
             }
             print!("  add rax, {}\n", tokens[i].val);
             i += 1;
@@ -104,14 +114,14 @@ fn main() {
         if tokens[i].ty == '-' as u64 {
             i += 1;
             if tokens[i].ty != TokenType::Number as u64 {
-                fail(&tokens, i);
+                error_at("expected a number", &tokens, i);
             }
             print!("  sub rax, {}\n", tokens[i].val);
             i += 1;
             continue;
         }
 
-        fail(&tokens, i);
+        error_at("invalid token", &tokens, i);
     }
 
     print!("  ret\n");

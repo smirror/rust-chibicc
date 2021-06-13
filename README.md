@@ -37,7 +37,7 @@ subdocuments(という名の面白かったサイト):
 - [x]  Step 1: Print one number
 - [x]  Step 2: Operetor '+' & '-'
 - [x]  Step 3: replace space' '
-- [ ]  Step 4: Error messages
+- [x]  Step 4: Error messages
 - [ ]  Step 5: Add '*' & ',' & '/' & '()'
 - [ ]  Step 6: Add unary plus and minus
 - [ ]  Step 7: Add "==", "!=", "<=" and ">=" operators
