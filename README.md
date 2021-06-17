@@ -1,4 +1,5 @@
 # rust-chibicc
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ## main
 
 origin(Rui Ueyama) : https://github.com/rui314/chibicc
